@@ -5,4 +5,7 @@
         <attr name="android:divider"/>
         <attr name="android:dividerHeight"/>
     </declare-styleable>
+    <declare-styleable name="ClearEditText">
+        <attr name="android:drawableRight"/>
+    </declare-styleable>
 </resources>

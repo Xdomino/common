@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.EditText
 
-class IconEditText : EditText {
+open class IconEditText : EditText {
     val LEFT = 0
     val TOP = 1
     val RIGHT = 2
