@@ -11,25 +11,9 @@ import me.elvis.commonlib.R
 class ClearEditText : IconEditText, IconEditText.OnIconClickListener {
 
     private var mDrawable: Drawable? = null
-
     private val mWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable) {
-            val drawables = compoundDrawables
-            if (s.isNotEmpty()) {
-                setCompoundDrawablesWithIntrinsicBounds(
-                    drawables[LEFT],
-                    drawables[TOP],
-                    mDrawable,
-                    drawables[BOTTOM]
-                )
-            } else {
-                setCompoundDrawablesWithIntrinsicBounds(
-                    drawables[LEFT],
-                    drawables[TOP],
-                    null,
-                    drawables[BOTTOM]
-                )
-            }
+            showIcon(s.isNotEmpty())
         }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -57,8 +41,27 @@ class ClearEditText : IconEditText, IconEditText.OnIconClickListener {
         typedArray.recycle()
         addTextChangedListener(mWatcher)
         setOnIconClickListener(this)
+        showIcon(false)
     }
 
+    private fun showIcon(visible: Boolean) {
+        val drawables = compoundDrawables
+        if (visible) {
+            setCompoundDrawablesWithIntrinsicBounds(
+                drawables[LEFT],
+                drawables[TOP],
+                mDrawable,
+                drawables[BOTTOM]
+            )
+        } else {
+            setCompoundDrawablesWithIntrinsicBounds(
+                drawables[LEFT],
+                drawables[TOP],
+                null,
+                drawables[BOTTOM]
+            )
+        }
+    }
 
     override fun onClick(coordinate: Int) {
         if (coordinate == RIGHT) {
