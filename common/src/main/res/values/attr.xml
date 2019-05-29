@@ -8,4 +8,13 @@
     <declare-styleable name="ClearEditText">
         <attr name="android:drawableRight"/>
     </declare-styleable>
+    <declare-styleable name="StarView">
+        <attr name="src" format="reference"/>
+        <attr name="opposite" format="reference"/>
+        <attr name="gap" format="dimension"/>
+        <attr name="count" format="integer"/>
+        <attr name="selection" format="integer"/>
+        <attr name="imgWidth" format="dimension"/>
+        <attr name="imgHeight" format="dimension"/>
+    </declare-styleable>
 </resources>
