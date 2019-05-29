@@ -72,7 +72,7 @@ class StarView : View {
         val hMode = MeasureSpec.getMode(heightMeasureSpec)
         var height = MeasureSpec.getSize(heightMeasureSpec)
         val gap = (mCount - 1) * mGap
-        if (wMode == MeasureSpec.AT_MOST) {
+        if (wMode == MeasureSpec.AT_MOST || wMode == MeasureSpec.UNSPECIFIED) {
             width = mImgWidth * mCount + gap + paddingLeft + paddingRight
         } else {
             val surplus = width - paddingLeft - paddingRight - gap
@@ -80,7 +80,7 @@ class StarView : View {
                 mImgWidth = surplus / mCount
             }
         }
-        if (hMode == MeasureSpec.AT_MOST) {
+        if (hMode == MeasureSpec.AT_MOST || hMode == MeasureSpec.UNSPECIFIED) {
             height = mImgHeight + paddingTop + paddingBottom
         } else {
             val surplus = width - paddingTop - paddingBottom

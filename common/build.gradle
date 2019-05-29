@@ -16,7 +16,7 @@ publish {
     userOrg = 'hpnb' //bintray注册的用户名（不是邮箱）
     groupId = 'me.elvis'
     artifactId = 'commonlib' //项目名称
-    publishVersion = '0.0.4' //版本号
+    publishVersion = '0.0.4.2' //版本号
     desc = 'common library'
     website = ''
 }
@@ -41,6 +41,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    lintOptions {
+        abortOnError false // 即使有报错也不会停止打包
+        checkReleaseBuilds false // 打包Release版本的时候也不进行Lint检测
+    }
+
 
 }
 
