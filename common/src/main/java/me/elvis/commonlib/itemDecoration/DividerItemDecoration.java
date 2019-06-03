@@ -13,7 +13,6 @@ import android.view.View;
 public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
-    private static final String TAG = "DividerItem";
     private static final int[] ATTRS = new int[]{16843284};
     private Drawable mDivider;
     private int mOrientation;
@@ -59,6 +58,14 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         }
     }
 
+    private int getSize() {
+        if (this.mOrientation == 1) {
+            return (this.mHeight == 0 ? this.mDivider.getIntrinsicHeight() : mHeight);
+        } else {
+            return (this.mHeight == 0 ? this.mDivider.getIntrinsicWidth() : mHeight);
+        }
+    }
+
     private void drawVertical(Canvas canvas, RecyclerView parent) {
         canvas.save();
         int left;
@@ -79,7 +86,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
             View child = parent.getChildAt(i);
             parent.getDecoratedBoundsWithMargins(child, this.mBounds);
             int bottom = this.mBounds.bottom + Math.round(child.getTranslationY());
-            int top = bottom - (this.mHeight == 0 ? this.mDivider.getIntrinsicHeight() : mHeight);
+            int top = bottom - getSize();
             this.mDivider.setBounds(left, top, right, bottom);
             this.mDivider.draw(canvas);
         }
@@ -107,7 +114,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
             View child = parent.getChildAt(i);
             parent.getLayoutManager().getDecoratedBoundsWithMargins(child, this.mBounds);
             int right = this.mBounds.right + Math.round(child.getTranslationX());
-            int left = right - (this.mHeight == 0 ? this.mDivider.getIntrinsicWidth() : mHeight);
+            int left = right - getSize();
             this.mDivider.setBounds(left, top, right, bottom);
             this.mDivider.draw(canvas);
         }
@@ -120,9 +127,9 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
             outRect.set(0, 0, 0, 0);
         } else {
             if (this.mOrientation == 1) {
-                outRect.set(0, 0, 0, this.mDivider.getIntrinsicHeight());
+                outRect.set(0, 0, 0, getSize());
             } else {
-                outRect.set(0, 0, this.mDivider.getIntrinsicWidth(), 0);
+                outRect.set(0, 0, getSize(), 0);
             }
 
         }

@@ -2,10 +2,12 @@ package me.elvis.commonlib.view
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.support.annotation.DrawableRes
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import me.elvis.commonlib.R
 import me.elvis.commonlib.utils.UiUtils
@@ -19,6 +21,8 @@ class StarView : View {
     private var mSelection = 0
     private var mImgWidth = 0
     private var mImgHeight = 0
+    private var mCanStar = false
+    private val mRect = Rect()
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -32,6 +36,7 @@ class StarView : View {
         mCount = ta.getInt(R.styleable.StarView_count, 0)
         mSelection = ta.getInt(R.styleable.StarView_selection, 0)
         if (mSelection > mCount) mSelection = mCount
+        mCanStar = ta.getBoolean(R.styleable.StarView_canStar, false)
         ta.recycle()
     }
 
@@ -40,11 +45,15 @@ class StarView : View {
         invalidate()
     }
 
+    fun getCount() = mCount
+
     fun setSelection(selection: Int) {
         mSelection = selection
         if (mSelection > mCount) mSelection = mCount
         invalidate()
     }
+
+    fun getSelection() = mSelection
 
     fun setSrcResource(@DrawableRes resId: Int) {
         setSrcDrawable(ContextCompat.getDrawable(context, resId))
@@ -99,15 +108,31 @@ class StarView : View {
         val oppositeCount = mCount - mSelection
         var left = (width - mImgWidth * mCount - mGap * (mCount - 1)) / 2
         val top = (height - mImgHeight) / 2
-        for (i in 1..mSelection) {
-            src.setBounds(left, top, left + mImgWidth, top + mImgHeight)
-            src.draw(canvas)
+        for (i in 1..mCount) {
+            val d = if (i <= mSelection) src else opposite
+            d.setBounds(left, top, left + mImgWidth, top + mImgHeight)
+            d.draw(canvas)
             left += mImgWidth + mGap
         }
-        for (i in 1..oppositeCount) {
-            opposite.setBounds(left, top, left + mImgWidth, top + mImgHeight)
-            opposite.draw(canvas)
-            left += mImgWidth + mGap
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (!mCanStar) return super.onTouchEvent(event)
+        when (event.actionMasked) {
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE -> {
+                var left = paddingLeft
+                val top = (height - mImgHeight) / 2
+                for (i in 1..mCount) {
+                    mRect.set(left, top, left + mImgWidth, top + mImgHeight)
+                    if (mRect.contains(event.x.toInt(), event.y.toInt())) {
+                        mSelection = i
+                        invalidate()
+                        return true
+                    }
+                    left += mImgWidth + mGap
+                }
+            }
         }
+        return true
     }
 }
