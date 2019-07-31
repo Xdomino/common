@@ -16,7 +16,7 @@ publish {
     userOrg = 'hpnb' //bintray注册的用户名（不是邮箱）
     groupId = 'me.elvis'
     artifactId = 'commonlib' //项目名称
-    publishVersion = '0.0.4.2' //版本号
+    publishVersion = '0.0.4.4' //版本号
     desc = 'common library'
     website = ''
 }

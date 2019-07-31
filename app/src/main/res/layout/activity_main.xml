@@ -6,10 +6,7 @@
                                              android:layout_height="match_parent"
                                              tools:context=".MainActivity">
 
-    <me.elvis.commonlib.view.ListRecyclerView
-            android:id="@+id/list"
-            android:divider="@color/colorPrimary"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+
+    </me.elvis.commonlib.view.ShadowLayout>
 
 </android.support.constraint.ConstraintLayout>

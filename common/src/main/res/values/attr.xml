@@ -18,4 +18,13 @@
         <attr name="imgHeight" format="dimension"/>
         <attr name="canStar" format="boolean"/>
     </declare-styleable>
+    <declare-styleable name="ShadowLayout">
+        <attr format="dimension" name="cornerRadius"/>
+        <attr format="dimension" name="shadowRadius"/>
+        <attr format="color" name="shadowColor"/>
+        <attr format="color" name="backgroundColor"/>
+        <attr format="dimension" name="dx"/>
+        <attr format="dimension" name="dy"/>
+    </declare-styleable>
+
 </resources>
