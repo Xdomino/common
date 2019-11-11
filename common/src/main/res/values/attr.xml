@@ -1,30 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ListRecyclerView">
-        <attr name="android:orientation"/>
-        <attr name="android:divider"/>
-        <attr name="android:dividerHeight"/>
+        <attr name="android:orientation" />
+        <attr name="android:divider" />
+        <attr name="android:dividerHeight" />
     </declare-styleable>
     <declare-styleable name="ClearEditText">
-        <attr name="android:drawableRight"/>
+        <attr name="android:drawableRight" />
     </declare-styleable>
     <declare-styleable name="StarView">
-        <attr name="src" format="reference"/>
-        <attr name="opposite" format="reference"/>
-        <attr name="gap" format="dimension"/>
-        <attr name="count" format="integer"/>
-        <attr name="selection" format="integer"/>
-        <attr name="imgWidth" format="dimension"/>
-        <attr name="imgHeight" format="dimension"/>
-        <attr name="canStar" format="boolean"/>
+        <attr name="src" format="reference" />
+        <attr name="opposite" format="reference" />
+        <attr name="gap" format="dimension" />
+        <attr name="count" format="integer" />
+        <attr name="selection" format="integer" />
+        <attr name="imgWidth" format="dimension" />
+        <attr name="imgHeight" format="dimension" />
+        <attr name="canStar" format="boolean" />
     </declare-styleable>
     <declare-styleable name="ShadowLayout">
-        <attr format="dimension" name="cornerRadius"/>
-        <attr format="dimension" name="shadowRadius"/>
-        <attr format="color" name="shadowColor"/>
-        <attr format="color" name="backgroundColor"/>
-        <attr format="dimension" name="dx"/>
-        <attr format="dimension" name="dy"/>
+        <attr name="cornerRadius" format="dimension" />
+        <attr name="shadowRadius" format="dimension" />
+        <attr name="shadowColor" format="color" />
+        <attr name="backgroundColor" format="color" />
+        <attr name="dx" format="dimension" />
+        <attr name="dy" format="dimension" />
     </declare-styleable>
-
+    <declare-styleable name="AnchorLinearLayout_Layout">
+        <attr name="layout_cAnchor" format="boolean" />
+    </declare-styleable>
 </resources>
