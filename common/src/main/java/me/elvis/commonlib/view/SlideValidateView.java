@@ -41,7 +41,7 @@ public class SlideValidateView extends View {
     // Finger x position of screen.
     private float mFingerX;
     private int mMargin;
-    private int mBgWidth;
+    private int mBgWidth, mBgHeight;
     private int mTextColor;
     private int mTextSize;
     private int mProgressBarHeight;
@@ -50,7 +50,7 @@ public class SlideValidateView extends View {
 
     private Data mData;
     private ResultListener mResultListener;
-    private State mState = State.Initial;
+    private boolean isDragging;
 
 
     public SlideValidateView(Context context) {
@@ -68,7 +68,7 @@ public class SlideValidateView extends View {
         mTextSize = ta.getDimensionPixelSize(R.styleable.SlideValidateView_textSize,
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 13f, getResources().getDisplayMetrics()));
         mTextColor = ta.getColor(R.styleable.SlideValidateView_textColor, Color.parseColor("#666666"));
-        mProgressBarHeight = ta.getDimensionPixelSize(R.styleable.SlideValidateView_progressHeight, -1);
+        mProgressBarHeight = ta.getDimensionPixelSize(R.styleable.SlideValidateView_progressHeight, 0);
         mProgressBarColor = ta.getColor(R.styleable.SlideValidateView_progressColor, Color.GRAY);
         ta.recycle();
         mPaint = new Paint();
@@ -89,20 +89,18 @@ public class SlideValidateView extends View {
             byte[] pieceBytes = Base64.decode(mData.sliderImage, Base64.DEFAULT);
             mPiece = BitmapFactory.decodeByteArray(pieceBytes, 0, pieceBytes.length);
             mSlideX = mData.initX;
-            mState = State.Initial;
             requestLayout();
         } catch (Exception ignored) {
         }
     }
 
     public void initial() {
-        mState = State.Initial;
         mScroller.startScroll((int) mSlideX, 0, (int) (mData.initX - mSlideX), 0, 500);
         invalidate();
     }
 
     public boolean isDragging() {
-        return mState == State.Sliding;
+        return isDragging;
     }
 
     public float getSlideX() {
@@ -111,87 +109,91 @@ public class SlideValidateView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        final int wm = MeasureSpec.getMode(widthMeasureSpec);
+        final int hm = MeasureSpec.getMode(heightMeasureSpec);
+
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = MeasureSpec.getSize(heightMeasureSpec);
         if (mBg != null) {
-            final int wm = MeasureSpec.getMode(widthMeasureSpec);
-            final int hm = MeasureSpec.getMode(heightMeasureSpec);
-
-            int width = MeasureSpec.getSize(widthMeasureSpec);
-            int height = MeasureSpec.getSize(heightMeasureSpec);
-
             mBgWidth = mBg.getWidth();
-            final int bw = mBgWidth;
-            final int bh = mBg.getHeight();
-
-
-            if (wm == MeasureSpec.AT_MOST && bw <= width) {
-                width = bw;
-            } else if (wm == MeasureSpec.UNSPECIFIED) {
-                width = bw;
-            }
-
-            int nh = bh + mMargin;
-            final int sbh = mButton.getIntrinsicHeight();
-            if (sbh > mProgressBarHeight) {
-                nh += sbh;
-            } else {
-                nh += mProgressBarHeight;
-            }
-            if (hm == MeasureSpec.AT_MOST && nh <= height) {
-                height = nh;
-            } else if (wm == MeasureSpec.UNSPECIFIED) {
-                height = nh;
-            }
-
-            setMeasuredDimension(width, height);
-        } else {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            mBgHeight = mBg.getHeight();
         }
+        final int bw = mBgWidth != 0 ? mBgWidth : width;
+        final int bh = mBgHeight;
+
+        if ((wm == MeasureSpec.AT_MOST && bw < width)
+                || wm == MeasureSpec.UNSPECIFIED) {
+            width = bw;
+        }
+
+        int nh = bh + mMargin;
+        if (mButton != null && mButton.getIntrinsicHeight() > mProgressBarHeight) {
+            nh += mButton.getIntrinsicHeight();
+        } else {
+            nh += mProgressBarHeight;
+        }
+
+        if ((hm == MeasureSpec.AT_MOST && nh < height) || wm == MeasureSpec.UNSPECIFIED) {
+            height = nh;
+        }
+
+        setMeasuredDimension(width, height);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+        float slideX = getPaddingLeft() + mSlideX;
+
+        int bx = (int) slideX, by = 0;
+        int ih = mButton != null ? mButton.getIntrinsicHeight() : 0;
+        int iw = mButton != null ? mButton.getIntrinsicWidth() : 0;
+
         if (mBg != null) {
-            float slideX = mSlideX + getPaddingLeft();
             canvas.drawBitmap(mBg, 0, 0, null);
             canvas.drawBitmap(mPiece, slideX, mData.initY, null);
-            int bx = (int) (mPiece != null ?
-                    slideX + ((mPiece.getWidth() - mButton.getIntrinsicWidth()) / 2)
-                    : slideX);
-            int by = mBg.getHeight() + mMargin;
+            by = mBgHeight;
+            bx += (mPiece.getWidth() - iw) / 2;
+        }
+        by += mMargin;
 
-            final int ih = mButton.getIntrinsicHeight();
-            final int stripH = mProgressBarHeight != -1 ? mProgressBarHeight : ih / 3;
-            int top;
-            if (ih > mProgressBarHeight) {
-                top = by + ih / 2 - stripH / 2;
-            } else {
-                top = by;
+        int top = by;
+        if (mProgressBarHeight != 0) {
+            if (mButton != null && ih > mProgressBarHeight) {
+                top += ih / 2 - mProgressBarHeight / 2;
             }
-            final int right = mBgWidth;
-            // Draw progress bar.
-            mRectF.set(0, top, right, top + stripH);
-            mPaint.setColor(mProgressBarColor);
-            canvas.drawRoundRect(mRectF, stripH / 2, stripH / 2, mPaint);
+            int right = mBgWidth != 0 ? mBgWidth : getWidth();
+            mRectF.set(0, top, right, top + mProgressBarHeight);
 
-            if (mState == State.Initial && mText != null) {
+            mPaint.setColor(mProgressBarColor);
+            canvas.drawRoundRect(mRectF, mProgressBarHeight / 2, mProgressBarHeight / 2, mPaint);
+
+            if (mText != null) {
                 mPaint.setColor(mTextColor);
                 mPaint.setTextSize(mTextSize);
                 final float tx = (getWidth() - mPaint.measureText(mText)) / 2;
                 final float ty = top + mRectF.height() / 2 - (mPaint.ascent() + mPaint.descent()) / 2;
                 canvas.drawText(mText, tx, ty, mPaint);
             }
-            if (mButton != null) {
-                // Draw progress button.
-                if (ih < mProgressBarHeight) {
-                    by = by + stripH / 2 - ih / 2;
-                }
-                mBounds.set(bx, by,
-                        bx + mButton.getIntrinsicWidth(),
-                        by + mButton.getIntrinsicHeight());
-                mButton.setBounds(mBounds);
-                mButton.draw(canvas);
+
+            if (slideX > iw) {
+                right = (int) bx + iw / 2;
+                mRectF.set(0, top, right, top + mProgressBarHeight);
+
+                mPaint.setColor(mProgressBarColor);
+                canvas.drawRoundRect(mRectF, mProgressBarHeight / 2, mProgressBarHeight / 2, mPaint);
             }
+        }
+
+
+        if (mButton != null) {
+            if (ih < mProgressBarHeight) {
+                by += mProgressBarHeight / 2 - ih / 2;
+            }
+            mBounds.set(bx, by, bx + iw, by + ih);
+            mButton.setBounds(mBounds);
+            mButton.draw(canvas);
         }
     }
 
@@ -209,7 +211,7 @@ public class SlideValidateView extends View {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 if (isInSlider(event)) {
-                    mState = State.Sliding;
+                    isDragging = true;
                     mFingerX = x;
                     return true;
                 }
@@ -217,7 +219,11 @@ public class SlideValidateView extends View {
             case MotionEvent.ACTION_MOVE:
                 if (isDragging()) {
                     float delta = x - mFingerX;
-                    mSlideX = Math.max(0, Math.min(mBgWidth - mData.sliderWidth, mSlideX + delta));
+                    int max = getWidth() - mButton.getIntrinsicWidth();
+                    if (mData != null) {
+                        max = mBgWidth - mData.sliderWidth;
+                    }
+                    mSlideX = Math.max(0, Math.min(max, mSlideX + delta));
                     mFingerX = x;
                     invalidate();
                 }
@@ -226,7 +232,7 @@ public class SlideValidateView extends View {
             case MotionEvent.ACTION_CANCEL:
                 if (isDragging()) {
                     if (mResultListener != null) mResultListener.onSlideEnd(mSlideX);
-                    mState = State.End;
+                    isDragging = false;
                 }
                 return true;
         }
@@ -236,10 +242,15 @@ public class SlideValidateView extends View {
     private boolean isInSlider(MotionEvent ev) {
         final float x = ev.getX();
         final float y = ev.getY();
-        return !(x < mSlideX || y < mData.initY ||
-                x > mSlideX + mData.sliderWidth ||
-                y > mData.initY + mData.sliderHeight)
-                || mBounds.contains((int) x, (int) y);
+
+        boolean isIn = false;
+        if (mData != null) {
+            isIn = !(x < mSlideX || y < mData.initY ||
+                    x > mSlideX + mData.sliderWidth ||
+                    y > mData.initY + mData.sliderHeight);
+        }
+        if (!isIn) isIn = mBounds.contains((int) x, (int) y);
+        return isIn;
     }
 
     private int dip2px(float dpValue) {
@@ -322,9 +333,5 @@ public class SlideValidateView extends View {
 
     public interface ResultListener {
         void onSlideEnd(float coordX);
-    }
-
-    private enum State {
-        Initial, Sliding, End
     }
 }

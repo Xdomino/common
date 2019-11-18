@@ -24,11 +24,13 @@ class ClearEditText : IconEditText, IconEditText.OnIconClickListener {
     }
 
     constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet?)
+            : super(context, attrs) {
         init(context, attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
+            : super(context, attrs, defStyleAttr) {
         init(context, attrs)
     }
 
@@ -40,6 +42,9 @@ class ClearEditText : IconEditText, IconEditText.OnIconClickListener {
         }
         typedArray.recycle()
         addTextChangedListener(mWatcher)
+        setOnFocusChangeListener { v, hasFocus ->
+            showIcon(text.isNotEmpty() && hasFocus && isEnabled)
+        }
         setOnIconClickListener(this)
         showIcon(false)
     }
@@ -68,5 +73,4 @@ class ClearEditText : IconEditText, IconEditText.OnIconClickListener {
             setText("")
         }
     }
-
 }
