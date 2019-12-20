@@ -6,7 +6,9 @@ import android.graphics.*;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
 import me.elvis.commonlib.R;
 
 public class ShadowLayout extends FrameLayout {
@@ -34,6 +36,30 @@ public class ShadowLayout extends FrameLayout {
     public ShadowLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView(context, attrs);
+    }
+
+    @Override
+    public void setLayoutParams(ViewGroup.LayoutParams params) {
+        if (params instanceof MarginLayoutParams) {
+            final MarginLayoutParams marginLayoutParams = (MarginLayoutParams) params;
+            final int topMargin = marginLayoutParams.topMargin;
+            if (topMargin > mShadowRadius) {
+                marginLayoutParams.topMargin -= mShadowRadius;
+            }
+            final int bottomMargin = marginLayoutParams.bottomMargin;
+            if (bottomMargin > mShadowRadius) {
+                marginLayoutParams.bottomMargin -= mShadowRadius;
+            }
+            final int leftMargin = marginLayoutParams.leftMargin;
+            if (leftMargin > mShadowRadius) {
+                marginLayoutParams.leftMargin -= mShadowRadius;
+            }
+            final int rightMargin = marginLayoutParams.rightMargin;
+            if (rightMargin > mShadowRadius) {
+                marginLayoutParams.rightMargin -= mShadowRadius;
+            }
+        }
+        super.setLayoutParams(params);
     }
 
     @Override
