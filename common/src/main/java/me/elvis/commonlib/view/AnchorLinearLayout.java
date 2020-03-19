@@ -9,7 +9,6 @@ import android.widget.LinearLayout;
 
 import me.elvis.commonlib.R;
 
-
 public class AnchorLinearLayout extends LinearLayout {
     private static final String TAG = "AnchorLinearLayout";
 
@@ -42,61 +41,96 @@ public class AnchorLinearLayout extends LinearLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (mAnchor != null) {
-            int sum = 0;
-            boolean needRemeasure;
-            final int orientation = getOrientation();
+        if (mAnchor == null || mAnchor.getVisibility() == View.GONE) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        } else {
+            int width = MeasureSpec.getSize(widthMeasureSpec);
+            int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+            int height = MeasureSpec.getSize(heightMeasureSpec);
+            int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+
+            final boolean horizontal = getOrientation() == HORIZONTAL;
+            if ((horizontal && widthMode == MeasureSpec.UNSPECIFIED) ||
+                    (!horizontal && heightMode == MeasureSpec.UNSPECIFIED)) {
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+                return;
+            }
+
+            final int paddingVertical = getPaddingTop() + getPaddingBottom();
+            final int paddingHorizontal = getPaddingLeft() + getPaddingRight();
+            int pWidth = paddingHorizontal, pHeight = paddingVertical;
+            int sum = horizontal ? paddingHorizontal : paddingVertical;
+
             final int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {
                 final View child = getChildAt(i);
+                if (child.getVisibility() == View.GONE) continue;
+
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                if (orientation == VERTICAL) {
-                    measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
-                    sum += child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
-                } else {
-                    measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
+                measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
+                if (horizontal) {
                     sum += child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin;
+                    if (heightMode != MeasureSpec.EXACTLY) {
+                        pHeight = Math.max(pHeight,
+                                child.getMeasuredHeight() + paddingVertical + lp.topMargin + lp.bottomMargin);
+                    }
+                } else {
+                    sum += child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
+                    if (widthMode != MeasureSpec.EXACTLY) {
+                        pWidth = Math.max(pWidth,
+                                child.getMeasuredWidth() + paddingHorizontal + lp.leftMargin + lp.rightMargin);
+                    }
                 }
             }
-            if (orientation == VERTICAL) {
-                needRemeasure = sum > getMeasuredHeight();
-            } else {
-                needRemeasure = sum > getMeasuredWidth();
-            }
-            if (needRemeasure) {
+            int var = horizontal ? width : height;
+            if (sum > var) {
                 int used = 0;
-                int remaining;
                 for (int i = 0; i < childCount; i++) {
                     final View child = getChildAt(i);
+                    if (child == mAnchor || child.getVisibility() == View.GONE) continue;
                     LayoutParams params = (LayoutParams) child.getLayoutParams();
-                    if (child != mAnchor) {
-                        if (orientation == VERTICAL) {
-                            used += child.getMeasuredHeight() + params.topMargin + params.bottomMargin;
-                        } else {
-                            used += child.getMeasuredWidth() + params.leftMargin + params.rightMargin;
-                        }
+                    if (horizontal) {
+                        used += child.getMeasuredWidth() + params.leftMargin + params.rightMargin;
+                    } else {
+                        used += child.getMeasuredHeight() + params.topMargin + params.bottomMargin;
                     }
                 }
-                if (orientation == VERTICAL) {
-                    remaining = getMeasuredHeight() - used;
-                } else {
-                    remaining = getMeasuredWidth() - used;
-                }
-                if (remaining > 0) {
-                    if (orientation == VERTICAL) {
+
+                if (var > used) {
+                    if (horizontal) {
                         measureChildWithMargins(mAnchor, widthMeasureSpec,
-                                0,
-                                heightMeasureSpec, getMeasuredHeight() - remaining);
+                                used,
+                                heightMeasureSpec, 0);
+                        if (heightMode != MeasureSpec.EXACTLY) {
+                            LayoutParams lp = (LayoutParams) mAnchor.getLayoutParams();
+
+                            pHeight = Math.max(pHeight,
+                                    mAnchor.getMeasuredHeight()
+                                            + paddingVertical + lp.topMargin + lp.bottomMargin);
+                        }
+                        setMeasuredDimension(width,
+                                heightMode != MeasureSpec.EXACTLY ? pHeight : height);
                     } else {
                         measureChildWithMargins(mAnchor, widthMeasureSpec,
-                                getMeasuredWidth() - remaining,
-                                heightMeasureSpec, 0);
+                                0,
+                                heightMeasureSpec, used);
+                        if (widthMode != MeasureSpec.EXACTLY) {
+                            LayoutParams lp = (LayoutParams) mAnchor.getLayoutParams();
+
+                            pWidth = Math.max(pWidth,
+                                    mAnchor.getMeasuredWidth()
+                                            + paddingHorizontal + lp.leftMargin + lp.rightMargin);
+                        }
+                        setMeasuredDimension(widthMode != MeasureSpec.EXACTLY ? pWidth : width,
+                                height);
                     }
                 } else {
-                    // No room left. Follow default.
+                    //放不下了
                     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
                 }
+            } else {
+                //占不满
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             }
         }
     }

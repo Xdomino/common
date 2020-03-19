@@ -21,7 +21,6 @@ class StarView : View {
     private var mSelection = 0
     private var mImgWidth = 0
     private var mImgHeight = 0
-    private var mCanStar = false
     private val mRect = Rect()
 
     constructor(context: Context) : this(context, null)
@@ -36,7 +35,6 @@ class StarView : View {
         mCount = ta.getInt(R.styleable.StarView_count, 0)
         mSelection = ta.getInt(R.styleable.StarView_selection, 0)
         if (mSelection > mCount) mSelection = mCount
-        mCanStar = ta.getBoolean(R.styleable.StarView_canStar, false)
         ta.recycle()
     }
 
@@ -117,7 +115,7 @@ class StarView : View {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (!mCanStar) return super.onTouchEvent(event)
+        if (!isEnabled) return super.onTouchEvent(event)
         when (event.actionMasked) {
             MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE -> {
                 var left = paddingLeft
