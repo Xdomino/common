@@ -9,6 +9,28 @@
             android:id="@+id/btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+    <me.elvis.commonlib.view.AnchorLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#f00"
+            android:padding="15dp"
+            android:layoutDirection="rtl"
+            android:orientation="horizontal">
+
+
+        <TextView
+                android:id="@+id/tv"
+                android:layout_width="wrap_content"
+                android:padding="10dp"
+                android:text="123"
+                android:layout_height="wrap_content"
+                app:layout_cAnchor="true" />
+        <View
+                android:layout_width="50dp"
+                android:background="#0f0"
+                android:layout_height="50dp" />
+
+    </me.elvis.commonlib.view.AnchorLinearLayout>
 
     <android.support.v7.widget.RecyclerView
             android:id="@+id/list"

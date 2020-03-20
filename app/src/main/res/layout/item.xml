@@ -5,24 +5,25 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <me.elvis.commonlib.view.AnchorLinearLayout
-            android:layout_width="100dp"
-            android:padding="15dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#f00"
-            android:orientation="vertical">
+            android:padding="15dp"
+            android:orientation="horizontal">
 
-        <View
-                android:layout_width="50dp"
-                android:layout_marginTop="10dp"
-                android:background="#0f0"
-                android:layout_height="50dp" />
 
         <TextView
                 android:id="@+id/tv"
-                android:text="12skdfhsdkhfksjhdflkshdflk12skdfhsdkhfksjhdflkshdflk12skdfhsdkhfksjhdflkshdflk12skdfhsdkhfksjhdflkshdflk12skdfhsdkhfksjhdflkshdflk"
                 android:layout_width="wrap_content"
+                android:text="12skdfhsdkhf"
+
+                android:padding="10dp"
                 android:layout_height="wrap_content"
                 app:layout_cAnchor="true" />
+        <View
+                android:layout_width="50dp"
+                android:background="#0f0"
+                android:layout_height="50dp" />
 
     </me.elvis.commonlib.view.AnchorLinearLayout>
 </FrameLayout>

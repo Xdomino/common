@@ -41,9 +41,7 @@ public class AnchorLinearLayout extends LinearLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (mAnchor == null || mAnchor.getVisibility() == View.GONE) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        } else {
+        if (mAnchor != null && mAnchor.getVisibility() != View.GONE) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
             int widthMode = MeasureSpec.getMode(widthMeasureSpec);
             int height = MeasureSpec.getSize(heightMeasureSpec);
@@ -58,7 +56,6 @@ public class AnchorLinearLayout extends LinearLayout {
 
             final int paddingVertical = getPaddingTop() + getPaddingBottom();
             final int paddingHorizontal = getPaddingLeft() + getPaddingRight();
-            int pWidth = paddingHorizontal, pHeight = paddingVertical;
             int sum = horizontal ? paddingHorizontal : paddingVertical;
 
             final int childCount = getChildCount();
@@ -70,19 +67,11 @@ public class AnchorLinearLayout extends LinearLayout {
                 measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
                 if (horizontal) {
                     sum += child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin;
-                    if (heightMode != MeasureSpec.EXACTLY) {
-                        pHeight = Math.max(pHeight,
-                                child.getMeasuredHeight() + paddingVertical + lp.topMargin + lp.bottomMargin);
-                    }
                 } else {
                     sum += child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
-                    if (widthMode != MeasureSpec.EXACTLY) {
-                        pWidth = Math.max(pWidth,
-                                child.getMeasuredWidth() + paddingHorizontal + lp.leftMargin + lp.rightMargin);
-                    }
                 }
             }
-            int var = horizontal ? width : height;
+            int var = horizontal ? width - paddingHorizontal : height - paddingVertical;
             if (sum > var) {
                 int used = 0;
                 for (int i = 0; i < childCount; i++) {
@@ -97,42 +86,16 @@ public class AnchorLinearLayout extends LinearLayout {
                 }
 
                 if (var > used) {
+                    LayoutParams lp = (LayoutParams) mAnchor.getLayoutParams();
                     if (horizontal) {
-                        measureChildWithMargins(mAnchor, widthMeasureSpec,
-                                used,
-                                heightMeasureSpec, 0);
-                        if (heightMode != MeasureSpec.EXACTLY) {
-                            LayoutParams lp = (LayoutParams) mAnchor.getLayoutParams();
-
-                            pHeight = Math.max(pHeight,
-                                    mAnchor.getMeasuredHeight()
-                                            + paddingVertical + lp.topMargin + lp.bottomMargin);
-                        }
-                        setMeasuredDimension(width,
-                                heightMode != MeasureSpec.EXACTLY ? pHeight : height);
+                        lp.width = var - used - lp.leftMargin - lp.rightMargin;
                     } else {
-                        measureChildWithMargins(mAnchor, widthMeasureSpec,
-                                0,
-                                heightMeasureSpec, used);
-                        if (widthMode != MeasureSpec.EXACTLY) {
-                            LayoutParams lp = (LayoutParams) mAnchor.getLayoutParams();
-
-                            pWidth = Math.max(pWidth,
-                                    mAnchor.getMeasuredWidth()
-                                            + paddingHorizontal + lp.leftMargin + lp.rightMargin);
-                        }
-                        setMeasuredDimension(widthMode != MeasureSpec.EXACTLY ? pWidth : width,
-                                height);
+                        lp.height = var - used - lp.topMargin - lp.bottomMargin;
                     }
-                } else {
-                    //放不下了
-                    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
                 }
-            } else {
-                //占不满
-                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             }
         }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override

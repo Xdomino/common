@@ -15,13 +15,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         btn.setOnClickListener {
+            tv.setText("${tv.text}123asd")
         }
         list.layoutManager = LinearLayoutManager(this)
         val datas = mutableListOf<String>()
         for (i in 1..50) {
             datas.add(i.toString())
         }
-        list.adapter=MyAdapter()
+//        list.adapter=MyAdapter()
     }
 
 
